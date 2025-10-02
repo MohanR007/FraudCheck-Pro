@@ -24,4 +24,4 @@ echo ========================================
 echo.
 
 cd backend
-python enhanced_app.py
+python app.py
