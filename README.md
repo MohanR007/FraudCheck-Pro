@@ -2,9 +2,7 @@
 
 Modern, single-path Flask + vanilla JS web application for real‑time transaction fraud detection with enriched feature engineering, expanded risk vocabularies, and explainable outputs.
 
-**Live Demo (Frontend Only):** https://fraudcheck-pro.netlify.app  
 **Full Application (Backend + API on Render):** https://fraudcheck-pro.onrender.com  
-> Netlify = static UI (expects local API unless configured).  
 > Render = full stack (Flask backend + UI) - cold starts may add a short initial delay.
 
 ---
