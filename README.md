@@ -1,30 +1,171 @@
-# FraudCheck Web - Transaction Fraud Detection System
+# FraudCheck Pro – Unified Transaction Fraud Detection Platform
 
-A simple, fully functional web application for real-time transaction fraud detection.
+Modern, single-path Flask + vanilla JS web application for real‑time transaction fraud detection with enriched feature engineering, expanded risk vocabularies, and explainable outputs.
 
-## Features
+## ✨ Key Features
 
-### Enhanced Version (New!)
-- **🏠 Interactive Dashboard**: Modern multi-page interface with navigation
-- **📊 Real-time Analytics**: Live charts using actual transaction data
-- **📈 Transaction History**: Complete history tracking with local storage
-- **🔍 Enhanced Detection**: 13+ sophisticated fraud detection features
-- **🌍 Geographic Risk**: Country-based risk assessment
-- **💳 Payment Analysis**: Advanced payment method risk scoring
-- **👤 Customer Behavior**: Age, account history, and frequency analysis
-- **🏪 Merchant Risk**: Category-based merchant risk evaluation
-- **📱 Device Intelligence**: Device type and IP risk assessment
-- **⏰ Time Patterns**: Hour-based and weekend transaction analysis
-- **� Fraud Reasoning**: Detailed explanations for fraud decisions
-- **🧪 Comprehensive Testing**: Detailed test cases and scenarios
+- 🧠 13-feature enhanced fraud scoring (amount, time, payment, geography, device, behavior, merchant, deviation)
+- 🗺️ Country & region risk mapping (expanded high/medium tiers)
+- 💳 Extended payment method taxonomy (card types, wallets, crypto, regional rails)
+- 🏪 Rich merchant category coverage with adaptive risk weighting
+- 📊 Real-time dashboard & statistics (fraud rate, blocked amount, daily trend)
+- 🕒 Time & frequency heuristics (unusual hours, velocity flags)
+- 🔍 Explainable results: risk level + contributing reasons
+- 🛡️ Heuristic fallback engine if ML model/scaler mismatch occurs
+- � Clean, minimal codebase (legacy variants removed)
+- 🧪 Comprehensive scenario test matrix (`testcases.md` + API test script)
 
-### Basic Version
-- **Clean Web Interface**: Simple HTML/CSS/JS form for transaction input
-- **Real-time Predictions**: Instant fraud detection results
-- **Pretrained Model**: Uses scikit-learn Random Forest classifier
-- **Mobile Responsive**: Works on all devices
-- **Color-coded Results**: Red for fraud, green for safe transactions
-- **Risk Assessment**: Provides fraud probability and confidence scores
+## 🗂 Project Structure (Unified)
+
+```
+fraudcheck-web/
+├── backend/
+│   ├── enhanced_app.py          # Flask app (single entrypoint)
+│   └── requirements.txt         # Python dependencies
+├── frontend/
+│   └── enhanced_index.html      # Unified UI (dashboard + detector + history + analytics)
+├── models/
+│   ├── create_simple_working_model.py  # Deterministic synthetic model trainer
+│   ├── fraud_detection_model.pkl       # Saved RandomForest model
+│   ├── scaler.pkl                      # Feature scaler
+│   └── model_metadata.txt              # Basic metadata
+├── test_enhanced_api.py         # API smoke / scenario test script
+├── testcases.md                 # Manual + structured test scenarios
+├── setup.bat                    # Environment & model setup (basic path)
+├── run.bat                      # Launch script (points to enhanced_app.py)
+└── README.md
+```
+
+> Removed: legacy `app.py`, basic/enhanced duplicate scripts, extra model trainers, unused frontend variants, and redundant batch files.
+
+## � Quick Start
+
+### 1. Create & Activate Virtual Environment (Recommended)
+```cmd
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 2. Install Dependencies
+```cmd
+pip install --only-binary=all -r backend\requirements.txt
+```
+
+### 3. (Optional) Recreate Model
+```cmd
+cd models
+python create_simple_working_model.py
+cd ..
+```
+
+### 4. Run Application
+```cmd
+run.bat
+```
+
+Then open: http://localhost:5000
+
+## 🔧 Runtime
+Endpoint | Method | Purpose
+---------|--------|--------
+`/` | GET | Unified web interface
+`/api/predict` | POST | Fraud inference
+`/api/health` | GET | Status & model load check
+`/api/statistics` | GET | Aggregated metrics (fraud rate, totals)
+`/api/reset-stats` | POST | Reset counters (testing)
+
+## � API Example
+```javascript
+const res = await fetch('/api/predict', {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({
+      amount: 8500,
+      payment_method: 'cryptocurrency',
+      country: 'NG',
+      device_info: 'mobile',
+      ip_risk: 9,
+      customer_age: 19,
+      account_age: 5,
+      daily_transactions: 14,
+      avg_transaction: 120,
+      merchant_category: 'gambling',
+      transaction_time: '02:45'
+   })
+});
+const data = await res.json();
+```
+
+Sample response:
+```json
+{
+   "is_fraud": true,
+   "fraud_probability": 0.92,
+   "risk_level": "Very High",
+   "fraud_reasons": [
+      "High transaction amount",
+      "High-risk country",
+      "High-risk payment method",
+      "High transaction frequency",
+      "High-risk merchant category"
+   ],
+   "fallback_used": false
+}
+```
+
+## 🧬 Feature Schema (13 Inputs → Engineered Vector)
+Index | Description | Source Field(s)
+------|-------------|----------------
+0 | Normalized amount (capped) | amount
+1 | High amount flag (>5000) | amount
+2 | Hour of day | transaction_time
+3 | Unusual hour flag (<6 or >22) | transaction_time
+4 | Payment method risk score | payment_method
+5 | Country/location risk | country
+6 | Device risk score | device_info
+7 | IP risk (scaled /10) | ip_risk
+8 | Age risk flag (<21 or >65) | customer_age
+9 | New account flag (<30 days) | account_age
+10 | High frequency flag (>10/day) | daily_transactions
+11 | Relative amount deviation | amount vs avg_transaction
+12 | Merchant category risk | merchant_category
+
+If the ML pipeline fails (dimension mismatch, scaler error), a rule-based heuristic assigns probability and sets `fallback_used: true`.
+
+## 🧪 Testing
+
+Automated smoke / scenario test:
+```cmd
+python test_enhanced_api.py
+```
+
+Manual matrix: see `testcases.md` (low / medium / high risk + edge cases).
+
+## 🔐 Security Notes (Development Mode)
+- Flask dev server (not for production)
+- CORS enabled broadly (tighten for deployment)
+- No auth layer (add JWT / API key if exposing externally)
+- Validate and sanitize upstream if integrating with real payments
+
+## 🚢 Deployment Tips
+- Use gunicorn/uvicorn + reverse proxy (Nginx)
+- Disable `debug=True`
+- Preload model at startup
+- Add structured logging & request IDs
+- Consider model versioning & drift monitoring
+
+## 🛠 Future Enhancements (Ideas)
+- Threshold tuning & calibration (Platt / isotonic)
+- Persistent storage for statistics (SQLite/Postgres)
+- Streaming ingestion (Kafka / Kinesis) adapter
+- Role-based analyst dashboard & case audit trail
+- Adaptive risk scoring (online learning / retraining hooks)
+
+## 📄 License
+MIT – use freely with attribution.
+
+---
+FraudCheck Pro – streamlined, explainable, and extensible. 🛡️
 
 ## Tech Stack
 
