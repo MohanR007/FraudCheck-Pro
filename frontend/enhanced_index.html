@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudCheck Pro - Advanced Transaction Fraud Detection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --dark-bg: #1e293b;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #334155;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: var(--card-shadow);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+
+        /* Main Container */
+        .main-container {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Page Sections */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Home Page */
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        /* Enhanced Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* Results */
+        .result-container {
+            margin-top: 2rem;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-safe {
+            background: #ecfdf5;
+            border: 2px solid var(--success-color);
+            color: #065f46;
+        }
+
+        .result-fraud {
+            background: #fef2f2;
+            border: 2px solid var(--danger-color);
+            color: #991b1b;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .result-detail {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        /* History Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .history-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-safe {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-fraud {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i> FraudCheck Pro
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+                <li><a href="#" class="nav-link" data-page="detector">Detector</a></li>
+                <li><a href="#" class="nav-link" data-page="history">History</a></li>
+                <li><a href="#" class="nav-link" data-page="analytics">Analytics</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- Home Page -->
+        <section id="home" class="page-section active">
+            <div class="hero-section">
+                <h1 class="hero-title">Advanced Fraud Detection System</h1>
+                <p class="hero-subtitle">Protect your transactions with AI-powered fraud detection</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--success-color);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number" id="total-transactions">0</div>
+                    <div class="stat-label">Total Transactions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--danger-color);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-number" id="fraud-detected">0</div>
+                    <div class="stat-label">Fraud Detected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--info-color);">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-number" id="accuracy-rate">98.5%</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--warning-color);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number">&lt;50ms</div>
+                    <div class="stat-label">Response Time</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">System Overview</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="overviewChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Fraud Detector -->
+        <section id="detector" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Transaction Fraud Detection</h2>
+                </div>
+
+                <form id="fraudForm" class="form-grid">
+                    <!-- Basic Transaction Details -->
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">
+                            <i class="fas fa-credit-card"></i> Transaction Details
+                        </h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Transaction Amount ($)</label>
+                            <input type="number" id="amount" class="form-input" 
+                                   placeholder="Enter amount" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Currency</label>
+                            <select id="currency" class="form-select" required>
+                                <!-- Core majors -->
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <!-- Additional majors/minors -->
+                                <option value="CHF">CHF - Swiss Franc</option>
+                                <option value="CNY">CNY - Chinese Yuan</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="NZD">NZD - New Zealand Dollar</option>
+                                <option value="SEK">SEK - Swedish Krona</option>
+                                <option value="NOK">NOK - Norwegian Krone</option>
+                                <option value="SGD">SGD - Singapore Dollar</option>
+                                <option value="HKD">HKD - Hong Kong Dollar</option>
+                                <option value="BRL">BRL - Brazilian Real</option>
+                                <option value="MXN">MXN - Mexican Peso</option>
+                                <option value="ZAR">ZAR - South African Rand</option>
+                                <option value="AED">AED - UAE Dirham</option>
+                                <option value="KRW">KRW - South Korean Won</option>
+                                <option value="TRY">TRY - Turkish Lira</option>
+                                <option value="PLN">PLN - Polish Zloty</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select id="payment_method" class="form-select" required>
+                                <option value="credit_card">Credit Card</option>
+                                <option value="debit_card">Debit Card</option>
+                                <option value="prepaid_card">Prepaid Card</option>
+                                <option value="gift_card">Gift Card</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="venmo">Venmo</option>
+                                <option value="apple_pay">Apple Pay</option>
+                                <option value="google_pay">Google Pay</option>
+                                <option value="alipay">Alipay</option>
+                                <option value="wechat_pay">WeChat Pay</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="wire_transfer">Wire Transfer</option>
+                                <option value="digital_wallet">Digital Wallet (Generic)</option>
+                                <option value="cryptocurrency">Cryptocurrency</option>
+                                <option value="cash">Cash</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Transaction Time</label>
+                                <input type="time" id="transaction_time" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Transaction Date</label>
+                                <input type="date" id="transaction_date" class="form-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Location & Device Info -->
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">
+                            <i class="fas fa-map-marker-alt"></i> Location & Device
+                        </h3>
+
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <select id="country" class="form-select" required>
+                                <!-- Core markets -->
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="DE">Germany</option>
+                                <option value="FR">France</option>
+                                <option value="IT">Italy</option>
+                                <option value="ES">Spain</option>
+                                <option value="NL">Netherlands</option>
+                                <option value="JP">Japan</option>
+                                <option value="AU">Australia</option>
+                                <option value="NZ">New Zealand</option>
+                                <option value="CH">Switzerland</option>
+                                <option value="SE">Sweden</option>
+                                <option value="PL">Poland</option>
+                                <!-- Emerging / large economies -->
+                                <option value="BR">Brazil</option>
+                                <option value="MX">Mexico</option>
+                                <option value="AR">Argentina</option>
+                                <option value="CN">China</option>
+                                <option value="IN">India</option>
+                                <option value="KR">South Korea</option>
+                                <option value="SG">Singapore</option>
+                                <option value="HK">Hong Kong</option>
+                                <option value="AE">United Arab Emirates</option>
+                                <option value="ZA">South Africa</option>
+                                <!-- Higher risk / monitoring -->
+                                <option value="NG">Nigeria</option>
+                                <option value="RO">Romania</option>
+                                <option value="RU">Russia</option>
+                                <option value="CN">China</option>
+                                <option value="TR">Turkey</option>
+                                <option value="EG">Egypt</option>
+                                <option value="KE">Kenya</option>
+                                <option value="GH">Ghana</option>
+                                <option value="PH">Philippines</option>
+                                <option value="TH">Thailand</option>
+                                <option value="VN">Vietnam</option>
+                                <option value="ID">Indonesia</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">City/Location</label>
+                            <input type="text" id="location" class="form-input" 
+                                   placeholder="Enter city or location" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Device Type</label>
+                            <select id="device_info" class="form-select" required>
+                                <option value="desktop">Desktop Computer</option>
+                                <option value="laptop">Laptop</option>
+                                <option value="mobile">Mobile Phone</option>
+                                <option value="tablet">Tablet</option>
+                                <option value="smartwatch">Smart Watch</option>
+                                <option value="atm">ATM</option>
+                                <option value="pos">POS Terminal</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">IP Risk Score (0-10)</label>
+                                <input type="range" id="ip_risk" class="form-input" 
+                                       min="0" max="10" value="2" 
+                                       oninput="document.getElementById('ip_risk_value').textContent = this.value">
+                                <span id="ip_risk_value">2</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">VPN Usage</label>
+                                <select id="vpn_usage" class="form-select">
+                                    <option value="no">No VPN</option>
+                                    <option value="yes">Using VPN</option>
+                                    <option value="unknown">Unknown</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Behavior -->
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">
+                            <i class="fas fa-user-check"></i> Customer Behavior
+                        </h3>
+
+                        <div class="form-group">
+                            <label class="form-label">Customer Age (Years)</label>
+                            <input type="number" id="customer_age" class="form-input" 
+                                   placeholder="Enter age" min="16" max="100" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Account Age (Days)</label>
+                            <input type="number" id="account_age" class="form-input" 
+                                   placeholder="Days since account creation" min="0" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Daily Transaction Count</label>
+                                <input type="number" id="daily_transactions" class="form-input" 
+                                       placeholder="Today's transactions" min="0" value="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weekly Transaction Count</label>
+                                <input type="number" id="weekly_transactions" class="form-input" 
+                                       placeholder="This week's transactions" min="0" value="5" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Average Transaction Amount ($)</label>
+                            <input type="number" id="avg_transaction" class="form-input" 
+                                   placeholder="Customer's average transaction" step="0.01" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Previous Fraud Reports</label>
+                            <select id="previous_fraud" class="form-select">
+                                <option value="0">No Previous Reports</option>
+                                <option value="1">1 Previous Report</option>
+                                <option value="2">2-3 Previous Reports</option>
+                                <option value="3">Multiple Reports</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Merchant & Additional Info -->
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">
+                            <i class="fas fa-store"></i> Merchant & Additional
+                        </h3>
+
+                        <div class="form-group">
+                            <label class="form-label">Merchant Category</label>
+                            <select id="merchant_category" class="form-select" required>
+                                <!-- Core retail/service -->
+                                <option value="retail">Retail</option>
+                                <option value="grocery">Grocery</option>
+                                <option value="gas_station">Gas Station / Fuel</option>
+                                <option value="restaurant">Restaurant / Dining</option>
+                                <option value="online_shopping">Online Shopping / eCommerce</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="travel">Travel / Airlines / Hotels</option>
+                                <option value="healthcare">Healthcare / Medical</option>
+                                <option value="pharmacy">Pharmacy / Drugstore</option>
+                                <option value="utilities">Utilities (Water/Energy)</option>
+                                <option value="subscriptions">Subscriptions / SaaS</option>
+                                <option value="education">Education / Courses</option>
+                                <option value="electronics">Electronics / Gadgets</option>
+                                <option value="luxury_goods">Luxury Goods / Jewelry</option>
+                                <option value="financial_services">Financial Services</option>
+                                <option value="cryptocurrency_exchange">Cryptocurrency Exchange</option>
+                                <option value="logistics">Logistics / Shipping</option>
+                                <option value="food_delivery">Food Delivery</option>
+                                <option value="ride_sharing">Ride Sharing / Mobility</option>
+                                <!-- Higher risk categories -->
+                                <option value="gambling">Gambling</option>
+                                <option value="adult_content">Adult Content</option>
+                                <option value="charity">Charity / Donations</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Merchant Risk Level</label>
+                            <select id="merchant_risk" class="form-select">
+                                <option value="low">Low Risk</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="high">High Risk</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">International Transaction</label>
+                                <select id="international" class="form-select">
+                                    <option value="no">Domestic</option>
+                                    <option value="yes">International</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weekend Transaction</label>
+                                <select id="weekend" class="form-select">
+                                    <option value="no">Weekday</option>
+                                    <option value="yes">Weekend</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Additional Notes (Optional)</label>
+                            <textarea id="notes" class="form-input" rows="3" 
+                                      placeholder="Any additional information..."></textarea>
+                        </div>
+                    </div>
+                </form>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" onclick="checkTransaction()">
+                        <i class="fas fa-search"></i> Analyze Transaction
+                    </button>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing transaction...</p>
+                </div>
+
+                <!-- Results -->
+                <div id="result" class="result-container">
+                    <div class="result-icon" id="result-icon"></div>
+                    <div class="result-text" id="result-text"></div>
+                    <div class="result-details">
+                        <div class="result-detail">
+                            <strong>Fraud Probability</strong>
+                            <div id="fraud-probability">--</div>
+                        </div>
+                        <div class="result-detail">
+                            <strong>Confidence Score</strong>
+                            <div id="confidence-score">--</div>
+                        </div>
+                        <div class="result-detail">
+                            <strong>Risk Level</strong>
+                            <div id="risk-level">--</div>
+                        </div>
+                        <div class="result-detail">
+                            <strong>Processing Time</strong>
+                            <div id="processing-time">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transaction History -->
+        <section id="history" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Transaction History</h2>
+                    <button class="btn btn-primary" onclick="clearHistory()">
+                        <i class="fas fa-trash"></i> Clear History
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Amount</th>
+                                <th>Payment Method</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Risk Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 3rem; color: #64748b;">
+                                    No transactions analyzed yet
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Dashboard -->
+        <section id="analytics" class="page-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--info-color);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-number" id="analytics-total">0</div>
+                    <div class="stat-label">Total Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--danger-color);">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="stat-number" id="analytics-blocked">0</div>
+                    <div class="stat-label">Fraud Blocked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--success-color);">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-number" id="money-saved">$0</div>
+                    <div class="stat-label">Money Saved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--warning-color);">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="stat-number" id="avg-response">--ms</div>
+                    <div class="stat-label">Avg Response Time</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Fraud Detection Trends</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Risk Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Payment Method Analysis</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+
+    <script>
+        // Global variables
+        let transactionHistory = JSON.parse(localStorage.getItem('transactionHistory')) || [];
+        let charts = {};
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeNavigation();
+            initializeCharts();
+            updateStatistics();
+            loadTransactionHistory();
+            
+            // Set current date and time
+            const now = new Date();
+            document.getElementById('transaction_date').value = now.toISOString().split('T')[0];
+            document.getElementById('transaction_time').value = now.toTimeString().slice(0, 5);
+        });
+
+        // Navigation
+        function initializeNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.page-section');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links and sections
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    const targetPage = this.getAttribute('data-page');
+                    document.getElementById(targetPage).classList.add('active');
+                    
+                    // Update charts when switching to analytics
+                    if (targetPage === 'analytics') {
+                        updateAnalyticsCharts();
+                    }
+                });
+            });
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Overview Chart (Home page) - use real data
+            const overviewCtx = document.getElementById('overviewChart').getContext('2d');
+            const overviewData = getOverviewChartData();
+            charts.overview = new Chart(overviewCtx, {
+                type: 'line',
+                data: {
+                    labels: overviewData.labels,
+                    datasets: [{
+                        label: 'Transactions Analyzed',
+                        data: overviewData.transactions,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Fraud Detected',
+                        data: overviewData.fraud,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Analytics Charts
+        function updateAnalyticsCharts() {
+            setTimeout(() => {
+                // Trend Chart - use real transaction data
+                const trendCtx = document.getElementById('trendChart');
+                if (trendCtx && !charts.trend) {
+                    const trendData = getDailyTransactionData();
+                    charts.trend = new Chart(trendCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: trendData.labels,
+                            datasets: [{
+                                label: 'Daily Transactions',
+                                data: trendData.counts,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                }
+
+                // Risk Chart - use real risk distribution
+                const riskCtx = document.getElementById('riskChart');
+                if (riskCtx && !charts.risk) {
+                    const riskData = getRiskDistribution();
+                    charts.risk = new Chart(riskCtx.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Low Risk', 'Medium Risk', 'High Risk', 'Very High Risk'],
+                            datasets: [{
+                                data: riskData,
+                                backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#dc2626']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                }
+
+                // Payment Method Chart - use real payment method data
+                const paymentCtx = document.getElementById('paymentChart');
+                if (paymentCtx && !charts.payment) {
+                    const paymentData = getPaymentMethodData();
+                    charts.payment = new Chart(paymentCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: paymentData.labels,
+                            datasets: [{
+                                label: 'Transaction Count',
+                                data: paymentData.counts,
+                                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }
+
+        // Fraud Detection Function
+        async function checkTransaction() {
+            const form = document.getElementById('fraudForm');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Show loading
+            loading.style.display = 'block';
+            result.style.display = 'none';
+
+            // Collect form data
+            const formData = new FormData(form);
+            const transactionData = {};
+            
+            // Get all form values
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.id) {
+                    transactionData[input.id] = input.value;
+                }
+            });
+
+            const startTime = Date.now();
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(transactionData)
+                });
+
+                const data = await response.json();
+                const processingTime = Date.now() - startTime;
+
+                // Hide loading
+                loading.style.display = 'none';
+                
+                // Show results
+                displayResults(data, processingTime);
+                
+                // Save to history
+                saveToHistory(transactionData, data, processingTime);
+                
+                // Update statistics
+                updateStatistics();
+
+            } catch (error) {
+                console.error('Error:', error);
+                loading.style.display = 'none';
+                
+                // Show error message
+                result.className = 'result-container result-fraud';
+                result.style.display = 'block';
+                document.getElementById('result-icon').innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+                document.getElementById('result-text').textContent = 'Error analyzing transaction';
+            }
+        }
+
+        // Display Results
+        function displayResults(data, processingTime) {
+            const result = document.getElementById('result');
+            const isFraud = data.is_fraud;
+            
+            result.className = `result-container ${isFraud ? 'result-fraud' : 'result-safe'}`;
+            result.style.display = 'block';
+            
+            // Update result content
+            document.getElementById('result-icon').innerHTML = isFraud ? 
+                '<i class="fas fa-exclamation-triangle"></i>' : 
+                '<i class="fas fa-check-circle"></i>';
+            
+            document.getElementById('result-text').textContent = isFraud ? 
+                'FRAUD DETECTED' : 'TRANSACTION SAFE';
+            
+            document.getElementById('fraud-probability').textContent = 
+                `${(data.fraud_probability * 100).toFixed(1)}%`;
+            
+            document.getElementById('confidence-score').textContent = 
+                `${(data.confidence * 100).toFixed(1)}%`;
+            
+            document.getElementById('risk-level').textContent = data.risk_level || 'Medium';
+            
+            document.getElementById('processing-time').textContent = `${processingTime}ms`;
+
+            // Scroll to results
+            result.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Save to History
+        function saveToHistory(transactionData, result, processingTime) {
+            const historyItem = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                amount: parseFloat(transactionData.amount),
+                currency: transactionData.currency,
+                payment_method: transactionData.payment_method,
+                location: transactionData.location,
+                country: transactionData.country,
+                device_info: transactionData.device_info,
+                is_fraud: result.is_fraud,
+                fraud_probability: result.fraud_probability,
+                confidence: result.confidence,
+                risk_level: result.risk_level,
+                processing_time: processingTime
+            };
+
+            transactionHistory.unshift(historyItem);
+            
+            // Keep only last 100 transactions
+            if (transactionHistory.length > 100) {
+                transactionHistory = transactionHistory.slice(0, 100);
+            }
+
+            localStorage.setItem('transactionHistory', JSON.stringify(transactionHistory));
+            loadTransactionHistory();
+        }
+
+        // Load Transaction History
+        function loadTransactionHistory() {
+            const tbody = document.getElementById('history-tbody');
+            
+            if (transactionHistory.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: #64748b;">
+                            No transactions analyzed yet
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = transactionHistory.map(item => `
+                <tr>
+                    <td>${item.timestamp}</td>
+                    <td>${item.currency} ${item.amount.toFixed(2)}</td>
+                    <td>${item.payment_method.replace('_', ' ').toUpperCase()}</td>
+                    <td>${item.location}, ${item.country}</td>
+                    <td>
+                        <span class="status-badge ${item.is_fraud ? 'status-fraud' : 'status-safe'}">
+                            ${item.is_fraud ? 'FRAUD' : 'SAFE'}
+                        </span>
+                    </td>
+                    <td>${(item.fraud_probability * 100).toFixed(1)}%</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="removeTransaction(${item.id})" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Remove Transaction
+        function removeTransaction(id) {
+            transactionHistory = transactionHistory.filter(item => item.id !== id);
+            localStorage.setItem('transactionHistory', JSON.stringify(transactionHistory));
+            loadTransactionHistory();
+            updateStatistics();
+        }
+
+        // Clear History
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all transaction history?')) {
+                transactionHistory = [];
+                localStorage.removeItem('transactionHistory');
+                loadTransactionHistory();
+                updateStatistics();
+                refreshAllCharts();
+            }
+        }
+
+        // Update Statistics
+        function updateStatistics() {
+            const totalTransactions = transactionHistory.length;
+            const fraudDetected = transactionHistory.filter(item => item.is_fraud).length;
+            const totalAmount = transactionHistory.reduce((sum, item) => sum + item.amount, 0);
+            const fraudAmount = transactionHistory.filter(item => item.is_fraud).reduce((sum, item) => sum + item.amount, 0);
+            const avgResponseTime = transactionHistory.length > 0 ? 
+                transactionHistory.reduce((sum, item) => sum + item.processing_time, 0) / transactionHistory.length : 0;
+
+            // Update home page stats
+            document.getElementById('total-transactions').textContent = totalTransactions;
+            document.getElementById('fraud-detected').textContent = fraudDetected;
+
+            // Update analytics page stats
+            document.getElementById('analytics-total').textContent = totalTransactions;
+            document.getElementById('analytics-blocked').textContent = fraudDetected;
+            document.getElementById('money-saved').textContent = `$${fraudAmount.toFixed(2)}`;
+            document.getElementById('avg-response').textContent = avgResponseTime > 0 ? `${avgResponseTime.toFixed(0)}ms` : '--ms';
+            
+            // Refresh charts with new data
+            refreshAllCharts();
+        }
+
+        // Real Data Functions
+        function getLast7Days() {
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            }
+            return days;
+        }
+
+        function getOverviewChartData() {
+            const last6Months = [];
+            const transactionCounts = [];
+            const fraudCounts = [];
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const monthKey = date.toLocaleDateString('en-US', { month: 'short' });
+                last6Months.push(monthKey);
+                
+                // Count real transactions for this month
+                const monthTransactions = transactionHistory.filter(t => {
+                    const transactionDate = new Date(t.timestamp);
+                    return transactionDate.getMonth() === date.getMonth() && 
+                           transactionDate.getFullYear() === date.getFullYear();
+                });
+                
+                transactionCounts.push(monthTransactions.length);
+                fraudCounts.push(monthTransactions.filter(t => t.is_fraud).length);
+            }
+            
+            return {
+                labels: last6Months,
+                transactions: transactionCounts,
+                fraud: fraudCounts
+            };
+        }
+
+        function getDailyTransactionData() {
+            const last7Days = getLast7Days();
+            const dailyCounts = [];
+            
+            last7Days.forEach(dayLabel => {
+                const dayCount = transactionHistory.filter(t => {
+                    const transactionDate = new Date(t.timestamp);
+                    const dayString = transactionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    return dayString === dayLabel;
+                }).length;
+                dailyCounts.push(dayCount);
+            });
+            
+            return {
+                labels: last7Days,
+                counts: dailyCounts
+            };
+        }
+
+        function getRiskDistribution() {
+            if (transactionHistory.length === 0) {
+                return [0, 0, 0, 0];
+            }
+            
+            const riskCounts = { low: 0, medium: 0, high: 0, veryHigh: 0 };
+            
+            transactionHistory.forEach(t => {
+                const risk = t.risk_level || 'Low';
+                switch (risk.toLowerCase()) {
+                    case 'very low':
+                    case 'low':
+                        riskCounts.low++;
+                        break;
+                    case 'medium':
+                        riskCounts.medium++;
+                        break;
+                    case 'high':
+                        riskCounts.high++;
+                        break;
+                    case 'very high':
+                        riskCounts.veryHigh++;
+                        break;
+                }
+            });
+            
+            return [riskCounts.low, riskCounts.medium, riskCounts.high, riskCounts.veryHigh];
+        }
+
+        function getPaymentMethodData() {
+            if (transactionHistory.length === 0) {
+                return { labels: [], counts: [] };
+            }
+            
+            const paymentCounts = {};
+            
+            transactionHistory.forEach(t => {
+                const method = t.payment_method || 'unknown';
+                const displayName = method.replace('_', ' ').toUpperCase();
+                paymentCounts[displayName] = (paymentCounts[displayName] || 0) + 1;
+            });
+            
+            return {
+                labels: Object.keys(paymentCounts),
+                counts: Object.values(paymentCounts)
+            };
+        }
+
+        function refreshAllCharts() {
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+            
+            // Reinitialize with current data
+            initializeCharts();
+            updateAnalyticsCharts();
+        }
+    </script>
+</body>
+</html>
